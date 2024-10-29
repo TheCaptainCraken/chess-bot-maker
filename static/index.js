@@ -10,3 +10,7 @@ const config = {
 }
 
 const board = Chessboard('chessboard', config)
+
+fetch('http://127.0.0.1:8080/gameOver', { mode: "no-cors" }).then(response => response.json()).then(data => {
+    console.log(data)
+})
