@@ -9,4 +9,4 @@ const config = {
     snapSpeed: 100,
 }
 
-const board = Chessboard('myBoard', config)
+const board = Chessboard('chessboard', config)
