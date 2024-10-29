@@ -10,7 +10,7 @@ Creating a chess bot can be an immensely rewarding yet challenging learning expe
 
 ## The Actual MVP
 
-Our product will consist of two main components: an online book and a GitHub repository. 
+Our product will consist of two main components: an online book and a GitHub repository.
 
 1. **Online Book**: This resource will guide users through the fundamentals of searching and evaluating positions for a chess engine. It will begin with the basics of the minimax algorithm for searching and simple material evaluation methods.
 
@@ -20,3 +20,6 @@ Our product will consist of two main components: an online book and a GitHub rep
 
 This structured approach will provide users with the tools and knowledge needed to quickly build and showcase their own chess bot, making the learning process engaging and rewarding.
 
+## Credits
+
+Thanks to [Paula Bellesi Torralba](https://github.com/kbx12) for hand crafting these amazing pieces for us!
