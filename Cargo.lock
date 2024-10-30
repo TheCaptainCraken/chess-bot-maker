@@ -433,6 +433,7 @@ dependencies = [
  "actix-web",
  "env_logger",
  "log",
+ "rand",
  "shakmaty",
 ]
 

@@ -1,6 +1,7 @@
 use actix_files as fs;
-use actix_web::{get, http::header::ContentType, middleware, web, App, HttpResponse, HttpServer};
-use shakmaty::{Chess, Position};
+use actix_web::{get, middleware, web, App, HttpServer, Result};
+use rand::seq::SliceRandom;
+use shakmaty::{fen::Fen, CastlingMode, Chess, Position};
 
 struct GameState {
     position: Chess,
@@ -18,7 +19,8 @@ async fn main() -> std::io::Result<()> {
                 position: Chess::default(),
             }))
             .wrap(middleware::Logger::default())
-            .route("/gameOver", web::get().to(game_over))
+            .service(bot_move)
+            .service(health_check)
             .service(fs::Files::new("/", "./static/").index_file("index.html"))
     })
     .bind(("127.0.0.1", 8080))?
@@ -26,11 +28,33 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-async fn game_over(data: web::Data<GameState>) -> HttpResponse {
-    HttpResponse::Ok()
-        .content_type(ContentType::json())
-        .body(format!(
-            "{{\"gameOver\": {}}}",
-            data.position.is_game_over()
-        ))
+#[get("/bot-move/{fen}")] // <- define path parameters
+async fn bot_move(path: web::Path<String>) -> Result<String> {
+    let data = path.into_inner();
+
+    let fen: Fen = data
+        .replace("%2F", "/")
+        .replace("%20", " ")
+        .parse()
+        .unwrap();
+
+    log::info!("fen: {}", fen);
+
+    let position: Chess = fen.into_position(CastlingMode::Standard).unwrap();
+
+    let legal_moves = position.legal_moves();
+
+    let bot_move = legal_moves.choose(&mut rand::thread_rng()).unwrap();
+
+    let new_position = position.play(&bot_move).unwrap();
+
+    Ok(format!(
+        "{}",
+        Fen::from_position(new_position, shakmaty::EnPassantMode::Always)
+    ))
+}
+
+#[get("/health-check")]
+async fn health_check() -> Result<String> {
+    Ok("HealthCheck performed correctly".to_string())
 }
