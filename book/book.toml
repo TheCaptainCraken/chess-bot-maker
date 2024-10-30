@@ -1,0 +1,6 @@
+[book]
+authors = ["Pietro Agnoli"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Make Your Own Chess Bot"

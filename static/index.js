@@ -2,8 +2,6 @@ const config = {
     pieceTheme: 'pieces/{piece}.png',
     position: 'start',
     draggable: true,
-    snapbackSpeed: 500,
-    snapSpeed: 100,
     onDragStart: onDragStart,
     onDrop: onDrop,
     onSnapEnd: onSnapEnd
@@ -11,14 +9,6 @@ const config = {
 
 const board = Chessboard('chessboard', config)
 let game = new Chess()
-
-// fetch('http://127.0.0.1:8080/gameOver', { mode: "no-cors" }).then(response => response.json()).then(data => {
-//     console.log(data)
-// })
-
-// fetch('http://127.0.0.1:8080/gimmeMoves', { mode: "no-cors" }).then(response => response.json()).then(data => {
-//     console.log(data)
-// })
 
 function onDragStart(source, piece, position, orientation) {
     // do not pick up pieces if the game is over
@@ -28,16 +18,19 @@ function onDragStart(source, piece, position, orientation) {
     if (piece.search(/^b/) !== -1) return false
 }
 
-async function botMoves() {
-    // CALLING API TO GET BOT MOVE EXPECTING A FEN STRING
+/*
+    Function to call the API to make the bot move
 
-    const response = await fetch(`http://127.0.0.1:8080/bot-move/${game.fen().replaceAll("/", "%2F")}`, {
+    NOTE: This could be way faster is instead of sending and receiving the FEN string, 
+    we could send the move made by the player and the bot could calculate the next move based on that.
+
+*/
+async function botMoves() {
+    const response = await fetch(`http://localhost:8080/bot-move/${game.fen().replaceAll("/", "%2F")}`, {
         mode: "no-cors",
     })
 
     const fen = await response.text()
-
-    console.log(fen)
 
     game = new Chess(fen)
     board.position(fen)
@@ -48,13 +41,13 @@ async function onDrop(source, target) {
     var move = game.move({
         from: source,
         to: target,
-        promotion: 'q' // NOTE: always promote to a queen for simplicity
+        promotion: 'q' // NOTE: always promote to a queen for simplicity, if you want to promote to a rook/knight/bishop, fuck you.
     })
 
     // illegal move
     if (move === null) return 'snapback'
 
-    // CALL API TO MAKE BOT MOVE
+    // Not is the machine's turn (HA!)
     await botMoves()
 }
 
