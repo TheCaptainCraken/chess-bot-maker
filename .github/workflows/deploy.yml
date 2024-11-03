@@ -28,16 +28,13 @@ jobs:
           # Just add a `cd` here if you need to change to another directory.
           cd book
           mdbook build
-          cd ..
-          mkdir output
-          mv book/book ./output
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: 'output'
+          path: 'book/book'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
