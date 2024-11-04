@@ -1,5 +1,8 @@
 # MVP
 
+>[!WARNING]
+>This project is in its very early stages of development, many features and chapters are missing. Breaking changes will be introduced.
+
 ## Audience
 
 This product is designed for individuals who are both coding enthusiasts and chess lovers, primarily targeting first-year computer science students and highly skilled high school students. The typical age range is 18 to 25. These users will have a foundational understanding of at least one programming language and some familiarity with basic algorithms and data structures.
