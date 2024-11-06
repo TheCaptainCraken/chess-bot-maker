@@ -56,9 +56,9 @@ fn get_score(role: Role) -> i64 {
 /// Returns 1 if the piece color is the same as the color of the player whose turn it is, otherwise -1.
 fn is_opponent(piece_color: Color, our_color: Color) -> i64 {
     if piece_color == our_color {
-        -1
-    } else {
         1
+    } else {
+        -1
     }
 }
 
