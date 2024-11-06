@@ -105,3 +105,81 @@ function next_move(position){
     }
 }
 ```
+
+Now let's see some Rust code, we'll start with some helper functions:
+
+```rust
+fn is_opponent(piece_color: Color, our_color: Color) -> i64 {
+    if piece_color == our_color {
+        1
+    } else {
+        -1
+    }
+}
+```
+
+This function returns \\(1\\) if the piece is ours and \\(-1\\) if it isn't. We'll use this to know if we need to add or subtract a piece's score based on its color.
+
+```rust
+fn get_score(role: Role) -> i64 {
+    match role {
+        Role::Pawn => 1,
+        Role::Knight => 3,
+        Role::Bishop => 3,
+        Role::Rook => 5,
+        Role::Queen => 9,
+        Role::King => 0,
+    }
+}
+```
+
+This function just returns for each piece, the score associated with it, the scores are the same as before.
+
+```rust
+fn evaluate(position: &Chess) -> i64 {
+    /*
+        This is using iterative folding to calculate the evaluation of the position.
+        The evaluation is calculated by iterating over the pieces on the board and summing up the score of each piece.
+        The score of each piece is calculated by multiplying the count of the piece by the score of the piece and then taken positively or negatively based on the color of the piece.
+    */
+    let score = position
+        .board()
+        .material()
+        .zip_color()
+        .iter()
+        .fold(0, |acc, (color, pieces)| {
+            acc + pieces.zip_role().iter().fold(0, |acc, (role, count)| {
+                let score = get_score(*role)
+                    * (*count as i64)
+                    * is_opponent((*color).other(), position.turn()); // we have to invert the color because by playing the move we are changing the turn.
+                acc + score
+            })
+        });
+
+    score
+}
+```
+
+Now, we're doing something interesting: this function takes the board, iterates every piece, calculates its value and adds everything together. Our pieces are added while enemy pieces are subtracted. Then we return the score.
+
+```rust
+pub fn next_move(position: &Chess) -> Move {
+    let legal_moves = position.legal_moves(); // Get all legal moves
+
+    // Find the move that maximizes the evaluation (piece count)
+    let best_move = legal_moves
+        .iter()
+        .max_by_key(|legal_move| {
+            let new_position = position.clone().play(legal_move).expect("Move is legal");
+            let evaluation = evaluate(&new_position);
+            evaluation
+        })
+        .expect("No legal moves found");
+
+    best_move.clone()
+}
+```
+
+Here we use `evaluate()` to find the move leading to the most favorable state. Then we return that move.
+
+- If there are more than one move with the best value, we just return the one that happens to be first.
