@@ -5,5 +5,5 @@
   - [What is a chess engine](./1_introduction/what_is_a_chess_engine.md)
   - [Getting started](./1_introduction/getting_started.md)
   - [Contributing](./1_introduction/contributing.md)
-- [Basic evaluation]()
+- [Basic evaluation](./2_basic_evaluation/index.md)
 - [Minimax]()

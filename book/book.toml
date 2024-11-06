@@ -4,3 +4,6 @@ language = "en"
 multilingual = false
 src = "src"
 title = "Make Your Own Chess Engine"
+
+[output.html]
+mathjax-support = true
