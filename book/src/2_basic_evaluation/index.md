@@ -1,73 +1,65 @@
 # Basic evaluation
 
-Now we are really getting started!
+Alright, let's improve this evaluation function!
 
 Currently we are:
 
 1. Generating all the legal moves
-2. Choosing a move at random
+2. Picking one at random
 
-This is not exactly a good way to play chess. We can do better. We need a way to choose the best move we have.
+Not really Grandmaster worthy. We can do better. We need a way to find the best move we have.
 
-We could try to evaluate moves based on wether the game state it creates is more or less favorable to us.
-To do that we need to be able to evaluate a game state and decide if we are winning or loosing in that game state.
+One way is to evaluate each move by checking if it leads to a better or worse position for us.
+This means assessing if we're winning or losing in any given game state.
+Unfortunately, there is no way to do it perfectly, since chess is a very complex game.
 
 ## Piece counting
 
-A dead simple, easy peasy way to evaluate a position is: counting the number of pieces:
+A dead simple, easy-peasy method to evaluate a position is counting the number of pieces:
 
-- the more pieces we have, the better
-- the less pieces the enemy has, the better
+- We have a lot of pieces = good
+- Enemy has few pieces = good
 
-We can bring this a bit further by observing tat not all pieces are created equal: a queen is much much stronger than a single pawn.
-We can assign a score to each piece type, then count those pieces and multiplying for the score. We do this for all pieces, then we do the same for the opponent and subtract that number from our number.
+We can bring this further. Not all pieces are created equal: a queen is way stronger (and more valuable) than a pawn!
+We can assign each piece a score and then calculate the total for both players by counting pieces and multiplying by scores.
 
 These are the most common scores assigned to pieces:
 
-| piece  |  score |
-| - | - |
-| pawn  | 1  |
-| bishop | 3 |
-| knight | 3 |
-|rook | 5 |
-| queen | 9 |
-| king | 0 |
+| piece  | score |
+|--------|-------|
+| pawn   | 1     |
+| bishop | 3     |
+| knight | 3     |
+| rook   | 5     |
+| queen  | 9     |
+| king   | 0     |
 
-This is a very long explanation but the idea is very simple, for example:
+Let's look at an example:
 
-```chess
-. . . . . ♖ . .
-. . . . . . . .
-. ♜ . . . . . .
-♙ ♙ ♔ . . . ♙ .
-. . ♞ . . . ♟ .
-♟ . . . . ♗ . .
-. ♚ . . . . . .
-. . . . . ♝ . .
-```
+![example chessboard](./assets/example.jpeg)
 
 Let's say we are white here, we have:
 
 - 1 king
-- 2 pawns
-- 1 bishop
-- 1 rook
-- 1 knight
-
-This makes our score: \\(1  \cdot0 + 2 \cdot 1 + 1  \cdot3 + 1 \cdot 5 + 1  \cdot 3 = 13\\). Black has:
-
-- 1 king
 - 3 pawns
 - 1 bishop
-- 1 rook
+- 2 queens
 
-This makes their score: \\( 1 \cdot 0 + 3 \cdot 1 + 1  \cdot3 + 1 \cdot 5  = 11 \\). The total score for this position is \\( 13 - 11 = 2 \\) we are winning! Yay!
+This makes our score: \\(1  \cdot 0 + 3 \cdot 1 + 1  \cdot 3 + 2 \cdot 9 = 24\\).
+
+Black has:
+
+- 1 king
+- 2 pawns
+- 1 knight
+
+This makes their score: \\( 1 \cdot 0 + 2 \cdot 1 + 1  \cdot 3 = 5 \\). The total score for this position is \\( 24 - 5 = 19 \\) we are winning by \\(19\\) points! Yay!
 
 >**Side note for the curious**: the king has a score of \\(0\\), this is because we are only going to analyze legal positions so there will always be a king thus no score needed.
 
 ### Implementation
 
-Let's start with the counting function:
+Let's start with the piece counting function:
 
 ```pseudo
 function count_pieces(position){
@@ -87,7 +79,7 @@ function count_pieces(position){
 }
 ```
 
-Then we use that function to calculate the best possible move:
+Then we use it to calculate the best possible move:
 
 ```pseudo
 function next_move(position){
@@ -106,7 +98,7 @@ function next_move(position){
 }
 ```
 
-Now let's see some Rust code, we'll start with some helper functions:
+Now, let's check out some Rust code. We'll start with some helper functions:
 
 ```rust
 fn is_opponent(piece_color: Color, our_color: Color) -> i64 {
@@ -160,7 +152,8 @@ fn evaluate(position: &Chess) -> i64 {
 }
 ```
 
-Now, we're doing something interesting: this function takes the board, iterates every piece, calculates its value and adds everything together. Our pieces are added while enemy pieces are subtracted. Then we return the score.
+Now, we're doing something interesting: this function takes the board, iterates over every piece, calculates its value and adds everything together.
+Our pieces are added while enemy pieces are subtracted. Then, we return the score.
 
 ```rust
 pub fn next_move(position: &Chess) -> Move {
@@ -181,5 +174,22 @@ pub fn next_move(position: &Chess) -> Move {
 ```
 
 Here we use `evaluate()` to find the move leading to the most favorable state. Then we return that move.
+If there is more than one move with the best value, we just return the first.
 
-- If there are more than one move with the best value, we just return the one that happens to be first.
+### Let's try it
+
+Run the program and see how the engine is doing.
+
+- Is it capturing pieces as soon as it can?
+- Is it choosing the highest value piece if it has a choice?
+
+If it isn't, check out my code. You can find it in `src/examples/basic_evaluation.rs`.
+The most common mistake here is to add what should be subtracted and viceversa.
+
+### Conclusion
+
+Now our little engine is finally choosing moves on its own and it tries go get ahead! Yay!
+Slight problem, the bot is now playing like an [angry goose](https://youtu.be/AMdhAFPWzFw?si=dNB94WBqWfwzW4no&t=13).
+It tries to kill everything it can, regardless of what is going to happen in the next moves. This isn't the tactical wisdom we are looking for.
+
+In the next section we'll be looking at how to make our little duck think before acting using one of my favorites algorithms ever: Minimax.
